@@ -1,0 +1,61 @@
+Library
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(stringr)
+```
+
+Import
+
+```{r}
+URL  <-  'https://it.wikipedia.org/wiki/Leone_d%27oro_al_miglior_film'
+table <- read_html(URL) %>%
+html_nodes("table") %>% .[3] %>%
+html_table(fill=T)
+```
+
+DF+filtro anni+stati doppi
+
+```{r}
+df <- as.data.frame(table)
+df_pulito <- subset(df, !grepl("La mostra non fu", df$Film))
+df_pulito <- subset(df_pulito, !grepl("non venne assegnato", df_pulito$Film))
+
+nazioni_contatore <- as.data.frame(str_split_fixed(df_pulito$Nazione, "/", 3))
+df_pulito <- cbind.data.frame(nazioni_contatore,df_pulito)
+
+```
+
+Scrivo csv
+
+```{r}
+write_csv(df_pulito, "tabella.csv")
+```
+
+Faccio il group by per nazione
+
+```{r}
+nazioni <- df_pulito %>% 
+           group_by(V1) %>% 
+           count() %>% 
+           arrange(-n)
+```
+
+csv
+```{r}
+write_csv(nazioni, "nazioni.csv")
+```
+
+Faccio grafico
+
+```{r}
+ggplot(data=nazioni, aes(x=reorder(V1,n), y=n)) +
+    geom_bar(stat="identity",fill = "red")+
+    coord_flip()+  
+  ggtitle("Vincitori per paese d'origine") +
+  xlab("")+
+  ylab("Vittorie")+
+  scale_y_discrete( limits = c(0:11))
+  
+```
