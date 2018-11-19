@@ -22,7 +22,7 @@ mlr --j2c filter '($titolo != "")' >./leoni.csv
 <./leoniPerNazione.csv mlr --c2m cat  >./leoniPerNazione.md
 ```
 
-## output (al netto della issue #)
+## output (al netto della issue #3)
 
 | nazione | conteggio |
 | --- | --- |
